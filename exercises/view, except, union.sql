@@ -23,26 +23,18 @@ end
 go;
 
 create view [dbo].[vw_singleEpisodeCompanion] AS
-    select e2.EpisodeId, e2.CompanionId 
-    from
-        (select CompanionId
+        select EpisodeId
         from tblEpisodeCompanion
-        group by CompanionId
-        having COUNT(CompanionId) = 1) as e1
-    join tblEpisodeCompanion as e2
-        on e1.CompanionId = e2.CompanionId
+        group by EpisodeId
+        having COUNT(EpisodeId) = 1
 
 go;
 
 create view [dbo].[vw_singleEpisodeEnemy] AS
-    select e2.EpisodeId, e2.EnemyId  
-    from
-        (select EnemyId
+        select EpisodeId
         from tblEpisodeEnemy
-        group by EnemyId
-        having COUNT(EnemyId) = 1) as e1
-    join tblEpisodeEnemy as e2
-        on e1.EnemyId = e2.EnemyId
+        group by EpisodeId
+        having COUNT(EpisodeId) = 1
 
 go;
 
@@ -63,6 +55,7 @@ create view [dbo].[vw_multipleEpisodeEnemyOrCompanion] AS
     except
     select e2.EpisodeId
     from [dbo].[vw_singleEpisodeEnemyOrCompanion] as e2
+    
 go;
 
 select COUNT(*) as 'allEpisodeCount'
@@ -74,9 +67,10 @@ from [dbo].[vw_singleEpisodeEnemyOrCompanion]
 select COUNT(*) as 'multipleEpisodeEnemyOrCompanion'
 from [dbo].[vw_multipleEpisodeEnemyOrCompanion] 
 
-select e.*
+select e.EpisodeId, e.Title
 from [dbo].[tblEpisode] as e
 join
     (SELECT EpisodeId 
     from [dbo].[vw_multipleEpisodeEnemyOrCompanion]) as mee
 on e.EpisodeId = mee.EpisodeId
+order by EpisodeId desc
