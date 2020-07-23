@@ -27,7 +27,7 @@ order by cont.ContinentId
 go;
 
 -- with countries count predicate
-with a as (
+with continentsWithMoreThan3Countries as (
     select cont.ContinentId as ContinentId, count(cnt.CountryId) as contriesCount
     from [dbo].[tblContinent] as cont
     join [dbo].tblCountry as cnt
@@ -37,7 +37,7 @@ with a as (
 ),
 
 -- with events count predicate
-b as (
+continentsWithLessThan10Events as (
     select cont.ContinentId as ContinentId, cnt.CountryId as CountryId, count(evt.EventId) as eventsCount
     from [dbo].[tblContinent] as cont
     join [dbo].tblCountry as cnt
@@ -48,11 +48,15 @@ b as (
     having count(evt.EventId) < 10
 )
 
-select a.ContinentId, b.CountryId, a.contriesCount,  b.eventsCount
-from a 
-join b 
-    on a.ContinentId = b.ContinentId
-order by a.ContinentId, b.CountryId
+select cc.ContinentId, ce.CountryId, cc.contriesCount, ce.eventsCount
+from continentsWithMoreThan3Countries as cc
+join continentsWithLessThan10Events as ce
+    on cc.ContinentId = ce.ContinentId
+order by cc.ContinentId, ce.CountryId
 
 
--- 2 do - rename CTEs, write checking query
+-- checking query
+select CountryId, count(EventId) as eventsCount
+from [dbo].tblEvent
+where CountryId in (4,8,12,2,6,15,16)
+group by CountryId
