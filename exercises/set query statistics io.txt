@@ -1,0 +1,1 @@
+set statistics io on;
